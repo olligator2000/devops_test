@@ -10,6 +10,7 @@ PHOTOS = [
     "photo4.jpg",
 ]
 
+
 def index(request):
     current_index = int(request.GET.get("i", 0))
     if current_index < 0:
@@ -25,4 +26,3 @@ def index(request):
         "has_next": current_index < len(PHOTOS) - 1,
     }
     return render(request, "gallery/index.html", context)
-
