@@ -1,4 +1,4 @@
-name: Django CI Pipeline
+name: Django CI/CD Pipeline
 
 on:
   push:
@@ -7,23 +7,80 @@ on:
     branches: [ develop, main ]
 
 jobs:
+  # ====== CI: ТЕСТЫ ======
   test:
+    name: 🧪 Test Django App
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
 
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
 
-    - name: 🐍 Setup Python
+    - name: 🐍 Setup Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: ${{ matrix.python-version }}
 
     - name: 📦 Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: ✅ Run Django checks
+      run: python manage.py check
+
     - name: 🧪 Run tests
-      run: |
-        python manage.py test
+      run: python manage.py test
+
+  # ====== CD: ДЕПЛОЙ НА DEV ======
+  deploy-dev:
+    name: 🚀 Deploy to site_dev
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+    - name: 🚀 Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          cd /home/user1/site_dev
+          git pull origin develop
+          source venv/bin/activate
+          pip install -r requirements.txt
+          python manage.py migrate
+          python manage.py collectstatic --noinput
+          sudo systemctl restart gunicorn_dev || sudo systemctl restart gunicorn
+          echo "✅ Деплой на site_dev выполнен!"
+
+  # ====== CD: ДЕПЛОЙ НА PROD ======
+  deploy-prod:
+    name: 🚀 Deploy to site_prod
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: 🚀 Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          cd /home/user1/site_prod
+          git pull origin main
+          source venv/bin/activate
+          pip install -r requirements.txt
+          python manage.py migrate
+          python manage.py collectstatic --noinput
+          sudo systemctl restart gunicorn_prod || sudo systemctl restart gunicorn
+          echo "✅ Деплой на site_prod выполнен!!!"
