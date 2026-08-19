@@ -83,4 +83,4 @@ jobs:
           python manage.py migrate
           python manage.py collectstatic --noinput
           sudo systemctl restart gunicorn_prod || sudo systemctl restart gunicorn
-          echo "✅ Деплой на site_prod выполнен!!!"
+          echo "✅ Деплой на site_prod выполнен!!!!!!!!"
