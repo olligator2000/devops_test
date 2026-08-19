@@ -51,7 +51,7 @@ jobs:
         password: ${{ secrets.SERVER_PASSWORD }}
         port: ${{ secrets.SERVER_PORT || 22 }}
         script: |
-          cd /home/user/site_dev/devops_test
+          cd /home/user/site_dev
           git pull origin develop
           source venv/bin/activate
           pip install -r requirements.txt
@@ -76,11 +76,11 @@ jobs:
         password: ${{ secrets.SERVER_PASSWORD }}
         port: ${{ secrets.SERVER_PORT || 22 }}
         script: |
-          cd /home/user/site_prod/devops_test
+          cd /home/user/site_prod
           git pull origin main
           source venv/bin/activate
           pip install -r requirements.txt
           python manage.py migrate
           python manage.py collectstatic --noinput
           sudo systemctl restart gunicorn_prod || sudo systemctl restart gunicorn
-          echo "✅ Деплой на site_prod выполнен!1"
+          echo "✅ Деплой на site_prod выполнен!!!!!!!!"
