@@ -51,7 +51,7 @@ jobs:
         password: ${{ secrets.SERVER_PASSWORD }}
         port: ${{ secrets.SERVER_PORT || 22 }}
         script: |
-          cd /home/user/site_dev
+          cd /home/user1/site_dev
           git pull origin develop
           source venv/bin/activate
           pip install -r requirements.txt
@@ -76,7 +76,7 @@ jobs:
         password: ${{ secrets.SERVER_PASSWORD }}
         port: ${{ secrets.SERVER_PORT || 22 }}
         script: |
-          cd /home/user/site_prod
+          cd /home/user1/site_prod
           git pull origin main
           source venv/bin/activate
           pip install -r requirements.txt
